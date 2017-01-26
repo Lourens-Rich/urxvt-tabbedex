@@ -486,8 +486,11 @@ sub new_tab {
 
    push @urxvt::TERM_EXT, urxvt::ext::tabbedex::tab::;
 
+   my %env = %{ $self->env };
+   $env{'URXVT_TAB'} = sprintf '%d:', $self->{tabs_open_so_far};
+
    my $term = new urxvt::term
-      $self->env, $urxvt::RXVTNAME,
+      \%env, $urxvt::RXVTNAME,
       -embed => $self->parent,
       @{ $self->{argv} };
 }
@@ -745,6 +748,8 @@ sub on_init {
    my @blacklist = split(',', $self->rs_text ('perl-ext-blacklist'));
    $self->{perl_ext_blacklist} = join (',-', ',-tabbedex', @blacklist);
 
+   $self->{tabs_open_so_far} = 0;
+
    ();
 }
 
@@ -828,6 +833,8 @@ sub tab_start {
 
 #   $tab->{name} ||= scalar @{ $self->{tabs} };
    $self->make_current ($tab);
+
+   ++$self->{tabs_open_so_far};
 
    ();
 }
